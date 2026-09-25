@@ -19,6 +19,7 @@ Target core build: **14.368** (Update Stable, 16 September 2026). V14 went stabl
 | Added `description`, `readme`, `bugs`, `changelog` | `description` was empty; the rest populate the package sidebar and Setup UI |
 | `download` URL pinned to the `2.0.0` tag, `manifest` pinned to `releases/latest` | Standard Foundry release pattern; the old `download` still pointed at the `0.1` zip |
 | Repo URL casing normalised to `Curse-Of-Strahd-by-ClayGolem` | The manifest mixed `Curse-Of-Strahd` and `Curse-of-Strahd` |
+| **`packs[0].path` `packs/...` → `Packs/...`** | The release zip ships the pack at `Packs/Curse-of-Strahd` (capital P). The repo manifest said lowercase, which fails to resolve on case-sensitive Linux hosts |
 
 Fields checked and left as-is: `id`, `title`, `authors`, `flags`, `packs` (including `ownership` — still a valid pack field in v14), `relationships.recommends`.
 
@@ -43,28 +44,87 @@ This branch ships `{ "postImport": true }` — Foundry auto-discovers the advent
 
 If you add branded `assets/background.webp` and `assets/thumb.webp` to the module, fill in the `world` block. If the pack ever contains more than one Adventure, pin the right one with `adventures`.
 
-## 3. Rebuilding the compendium pack — required
+## 3. The compendium pack — audited against release 1.2
 
-**The LevelDB pack (`packs/Curse-of-Strahd`) is not in this repository**; it ships only inside the release zip. It must be rebuilt under v14 before a `2.0.0` release, because v14 changes document data that this adventure's scenes and actors rely on.
+The LevelDB pack is not in this repository; it ships only inside the release zip.
+Release **1.2** (`curse-of-strahd-by-claygolem.zip`, 427.5 MB) was downloaded and its
+pack (`Packs/Curse-of-Strahd`, 26 keys) audited directly. Contents:
 
-Procedure:
+| | Count |
+|---|---|
+| Adventure documents | 21 |
+| Scenes | 206 |
+| Tokens | 1258 |
+| Tiles | 767 |
+| Actors | 262 |
+| Items | 109 |
+| Regions (already present) | 573 |
+| **MeasuredTemplates** | **1** |
+| ActiveEffects (legacy v1 shape) | 585 of 586 |
+| Tokens with array `detectionModes` | 76 |
 
-1. Clean-install Foundry **14.368** to a separate directory with its own user data path (v14 cannot be installed over v13, and worlds are one-way).
-2. Install dnd5e (6.0.x, or 5.3.x if you are not ready for 6.x) and the five required modules at their v14 versions.
-3. Create a world and import the existing V13 adventure. Core and system migrations run on import.
-4. Work through §4 below on every scene.
-5. Use the Adventure Builder's **Rebuild** button to write the world's state back over the Adventure document, then export the pack into the release zip.
+Authoring stamps: core `13.348`/`13.350`; dnd5e `4.3.6`–`5.1.10` (mixed, mostly
+`5.1.9` and `4.3.6`).
 
-### 4. Content changes v14 forces on this adventure
+**The MeasuredTemplate removal is a non-issue for this module.** The author had
+already built the adventure on Scene Regions — 573 of them — and the entire pack
+contains exactly one leftover template: a hidden, decorative 60 ft circle with a
+Token Magic FX "Smoky Area" filter on *J5b - Yester Hill - Druid Circle*.
 
-- **Measured Templates are gone.** V14 deleted the `MeasuredTemplate` document type outright — the first core document type Foundry has ever removed — and absorbed it into Scene Regions, which gained cone, ray/line, ring and emanation shapes. Any template baked into a packed scene must become a Region. `canvas.scene.templates` → `canvas.scene.regions`; shape `t: "ray"` → `type: "line"`; cone direction now reads from `shapes[0].rotation`. Rectangle regions pivot from the **top-left** via `anchorX`/`anchorY`, not the centre. As of 14.360 the default visibility for converted template regions is `ALWAYS`, not `OBSERVER`.
-- **Active Effects v2.** `changes` moved from the effect root to `system.changes`; `mode` (numeric) became `type` (string: `"add"`, `"multiply"`, `"subtract"`, `"downgrade"`, `"upgrade"`, `"override"`); `origin` is now a UUID. Effects on packed actors/items get migrated on import — spot-check any hand-authored effects.
-- **Scene Levels.** Scenes now support stacked layers at defined elevation ranges via a new `Level` document embedded in Scene; tiles, lights, walls and sounds can be assigned to a level. Optional, but worth using for the multi-storey maps (Death House, Castle Ravenloft).
-- **Tokens.** `detectionModes` is now an object keyed by ID rather than an array, and tokens gained required `depth` and `level` fields.
-- **TinyMCE is removed** — ProseMirror is the only built-in editor. Journal entries authored in the old editor still render, but check any raw-HTML journal content in the pack.
-- **Adventure imports** now record metadata (server time, module version at import) in the `core.adventureImports` setting.
+## 4. What was actually migrated
 
-### 5. Dependency status (verified September 2026)
+`tools/migrate-templates-to-regions.mjs` converted that single template to a Region:
+
+```
+type: ellipse   x: 8600  y: 8200   radiusX/radiusY: 2400px   (60ft x 200px/5ft)
+_id preserved   visibility: 0 (LAYER, matching the old hidden: true)
+```
+
+The dead `templates` field was stripped from all 206 scenes. Verified after the
+rewrite: 21 adventures, 206 scenes, 1258 tokens, 262 actors all intact; regions
+573 → 574; zero scenes still carrying a `templates` field. The database was then
+compacted back to 3.5 MB.
+
+Two caveats on that one region:
+
+- The `tokenmagic` flag is preserved but **inert** — it targets
+  `placeableType: "MeasuredTemplate"`, and Token Magic FX is not a dependency of
+  this module anyway. The smoke effect is lost either way; re-do it as a Region
+  behaviour if you want it back.
+- Region shapes in this pack use `ellipse`, not `circle`, so the conversion matches
+  the surrounding data rather than introducing a new shape type.
+
+### Left to Foundry's own migration — deliberately
+
+The 585 legacy ActiveEffects (root-level `changes`, numeric `mode`) and the 76
+array-form `detectionModes` were **not** hand-migrated. Core v14 has migration
+shims for both, and dnd5e transforms effects again on top of that; hand-rolling
+585 effect conversions would be more likely to introduce drift than to avoid it.
+They migrate correctly on import.
+
+The one thing core cannot migrate is the template, because the field it lives in
+no longer exists — which is exactly the gap the script closes.
+
+### Still requires a real Foundry instance
+
+What could not be done offline, and needs Foundry v14 running with your licence:
+
+1. **The dnd5e system migration.** Pack content is stamped dnd5e 4.3.6–5.1.10. Reaching
+   6.0.x is a two-major-version jump (4.x → 5.x → 6.x) covering the 2024 rules
+   restructure. This is the largest remaining risk and needs a real import to validate.
+2. **Visual verification** of 206 scenes — walls, lighting, Monk's Active Tile triggers,
+   Item Piles.
+3. **Adventure Builder → Rebuild**, to write the migrated world state back over the
+   21 Adventure documents and re-export the pack.
+
+Procedure: clean-install Foundry 14.368 to its own directory and user data path
+(v14 cannot install over v13, and worlds are one-way); install dnd5e plus the five
+required modules at their v14 versions; import the adventure; verify; rebuild; export.
+
+> **Note:** Foundry v14 requires **Node.js 24**. This machine has Node 22.14.0 — fine for
+> the LevelDB work above, not enough to run a v14 server.
+
+## 5. Dependency status (verified September 2026)
 
 | Module | Latest | Foundry compatibility |
 |---|---|---|

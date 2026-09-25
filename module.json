@@ -22,7 +22,7 @@
     {
       "name": "Curse-of-Strahd",
       "label": "Curse of Strahd",
-      "path": "packs/Curse-of-Strahd",
+      "path": "Packs/Curse-of-Strahd",
       "type": "Adventure",
       "system": "dnd5e",
       "ownership": {
