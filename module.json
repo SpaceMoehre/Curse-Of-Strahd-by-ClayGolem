@@ -1,10 +1,11 @@
 {
   "id": "curse-of-strahd-by-claygolem",
   "title": "Curse of Strahd by ClayGolem",
-  "version": "0.1",
+  "description": "<p>A complete, ready-to-run Foundry VTT Adventure pack for <strong>Curse of Strahd</strong>, following <a href=\"https://www.strahdreloaded.com/Introduction/A+DM's+Guide+to+Curse+of+Strahd\">DragnaCarta's <em>Curse of Strahd: Reloaded</em></a> and updated for the 2024 D&amp;D rules.</p><p>Includes every pre-built map with walls, lighting, ambient sound and Monk's Active Tile triggers already configured, plus all Actors and Items used by the adventure.</p><p>You will need your own copy of the original <em>Curse of Strahd</em> from WotC or D&amp;D Beyond, and the free <em>Curse of Strahd: Reloaded</em> guide.</p>",
+  "version": "2.0.0",
   "compatibility": {
-    "minimum": "12",
-    "verified": "13"
+    "minimum": "14",
+    "verified": "14.368"
   },
   "authors": [
     {
@@ -30,39 +31,60 @@
       }
     }
   ],
+  "quickstart": {
+    "postImport": true
+  },
   "relationships": {
     "systems": [
       {
         "id": "dnd5e",
         "type": "system",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "5.3.0",
+          "verified": "6.0.5"
+        }
       }
     ],
     "requires": [
       {
         "id": "item-piles",
         "type": "module",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "3.3.4",
+          "verified": "3.3.4"
+        }
       },
       {
         "id": "monks-active-tiles",
         "type": "module",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "14.01",
+          "verified": "14.01"
+        }
       },
       {
         "id": "lib-wrapper",
         "type": "module",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "1.13.5.1",
+          "verified": "1.13.5.1"
+        }
       },
       {
         "id": "socketlib",
         "type": "module",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "1.1.4",
+          "verified": "1.1.4"
+        }
       },
       {
         "id": "tagger",
         "type": "module",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "1.6.0",
+          "verified": "1.6.0"
+        }
       }
     ],
     "recommends": [
@@ -86,12 +108,12 @@
         "type": "module",
         "compatibility": {}
       }
-    ],
-  
-
+    ]
   },
-  "url": "https://github.com/ClayGolemDM/Curse-of-Strahd-by-ClayGolem",
-  "manifest": "https://github.com/ClayGolemDM/Curse-of-Strahd-by-ClayGolem/releases/latest/download/module.json",
-  "download": "https://github.com/ClayGolemDM/Curse-of-Strahd-by-ClayGolem/releases/download/0.1/curse-of-strahd-by-claygolem.zip",
-  "description": ""
+  "url": "https://github.com/ClayGolemDM/Curse-Of-Strahd-by-ClayGolem",
+  "readme": "https://github.com/ClayGolemDM/Curse-Of-Strahd-by-ClayGolem/blob/main/README.md",
+  "bugs": "https://github.com/ClayGolemDM/Curse-Of-Strahd-by-ClayGolem/issues",
+  "changelog": "https://github.com/ClayGolemDM/Curse-Of-Strahd-by-ClayGolem/releases",
+  "manifest": "https://github.com/ClayGolemDM/Curse-Of-Strahd-by-ClayGolem/releases/latest/download/module.json",
+  "download": "https://github.com/ClayGolemDM/Curse-Of-Strahd-by-ClayGolem/releases/download/2.0.0/curse-of-strahd-by-claygolem.zip"
 }
