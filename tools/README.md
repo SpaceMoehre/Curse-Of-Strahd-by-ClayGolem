@@ -146,3 +146,35 @@ to stay one-way.
 `permissions` actions are left alone on purpose. MATT has no toggle for
 permission, and revoking a handout the party has already read is worse than
 leaving it readable; Reset still revokes all of them.
+
+## update-existing-world.js
+
+Not a build script — a **Foundry Script macro**, generated from `remap-plan.tsv`,
+for GMs who already imported the adventure before 2.0.2.
+
+Re-importing the Adventure would also deliver the fixes, but Foundry matches
+documents by ID on import, so it overwrites everything the pack owns and discards
+the GM's own changes. This macro rewrites only the fields that differ.
+
+It covers exactly the field shapes the bad paths were found in, and nothing else:
+
+| field | refs |
+|---|---|
+| `scenes[].tokens[].texture.src` | 495 |
+| `actors[].items[].img` | 78 |
+| `scenes[].tokens[].ring.subject.texture` | 63 |
+| `actors[].img` | 45 |
+| `actors[].prototypeToken.texture.src` | 45 |
+| `items[].img` | 20 |
+| `actors[].prototypeToken.ring.subject.texture` | 4 |
+| `items[].effects[].img` | 3 |
+| `actors[].items[].effects[].img` | 2 |
+| `scenes[].tokens[].delta.items[].img` | 1 |
+
+It then applies the same Landing Page button rewrite as
+`toggle-landing-page-buttons.mjs`, keyed on the `lp-…-btn` tag rather than the
+scene name so a renamed scene still works.
+
+Idempotent, and whispers a summary to the GM. Regenerate it after changing the
+mapping — it embeds all 150 pairs inline so it can be pasted into Foundry with no
+dependencies.

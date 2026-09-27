@@ -117,6 +117,33 @@ open the imported Adventure in the **Adventure Builder** and use **Rebuild**. Th
 the migrated world state back over the Adventure document. Export the pack afterwards if
 you want to redistribute it.
 
+## 6. Updating a world you have already imported into
+
+Importing an Adventure is one-way, but **re-importing is not additive** — Foundry
+matches documents by ID, so a second import overwrites the scenes, actors and
+items it owns. Moved tokens, rolled HP, journal notes and any scene edits revert
+to pack state. Two routes, depending on what you have invested:
+
+### Nothing to lose — re-import
+
+Update the module (**Setup → Add-on Modules → Update**, or reinstall from the
+manifest URL), delete the old documents in your world, then open the compendium
+and left-click the Adventure again.
+
+### Mid-campaign — run the update macro
+
+`tools/update-existing-world.js` rewrites only the fields that changed and leaves
+everything else alone. Update the module first so the new art paths resolve, then
+paste the file into a **Script** macro and run it once as a GM.
+
+It repoints the 150 premium-module art paths at dnd5e / core Foundry art, and
+makes the Landing Page buttons toggle. It is idempotent, and it whispers a
+summary to you when it finishes. The six creatures dnd5e does not ship are
+reported rather than substituted.
+
+The macro is attached to the [2.0.3 release](https://github.com/SpaceMoehre/Curse-Of-Strahd-by-ClayGolem/releases/tag/2.0.3)
+as well, so you can download it without cloning.
+
 ## Known gaps
 
 - **206 scenes have not been opened in a real v14 client.** Walls, lighting, Monk's Active
