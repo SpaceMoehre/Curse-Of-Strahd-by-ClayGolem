@@ -21,7 +21,9 @@ Target core build: **14.368** (Update Stable, 16 September 2026). V14 went stabl
 | Repo URL casing normalised to `Curse-Of-Strahd-by-ClayGolem` | The manifest mixed `Curse-Of-Strahd` and `Curse-of-Strahd` |
 | **`packs[0].path` `packs/...` → `Packs/...`** | The release zip ships the pack at `Packs/Curse-of-Strahd` (capital P). The repo manifest said lowercase, which fails to resolve on case-sensitive Linux hosts |
 
-Fields checked and left as-is: `id`, `title`, `authors`, `flags`, `packs` (including `ownership` — still a valid pack field in v14), `relationships.recommends`.
+`relationships.recommends` was **removed** in 2.0.1. It listed the three premium WotC modules and JB2A; Foundry shows recommendations in the same install dialog as hard dependencies, which reads as though they are required. They are not — see §9.
+
+Fields checked and left as-is: `id`, `title`, `authors`, `flags`, `packs` (including `ownership` — still a valid pack field in v14).
 
 ## 2. Quick Start Adventures (new in v14)
 
@@ -203,9 +205,33 @@ All five required modules have v14-verified releases, so nothing in `relationshi
 This module ships no JavaScript — no `esmodules`, `scripts` or `styles`. The v14 API breaks that hit most modules therefore do not apply here:
 ApplicationV2 `_insertElement` signature changes, detached/pop-out windows, `foundry.prosemirror.defaultPlugins` → `ProseMirrorEditor.buildDefaultPlugins()`, `CONST.CHAT_MESSAGE_TYPES` → `CHAT_MESSAGE_STYLES`, the `getPlaceableContextOptions` hook, and the AppV1 (`Application`/`Dialog`/`FormApplication`) deprecations scheduled for removal in v16.
 
-## 8. Open decision
+## 8. Release URLs (resolved)
 
-The `url`, `readme`, `bugs`, `changelog`, `manifest` and `download` fields point at **`ClayGolemDM/Curse-Of-Strahd-by-ClayGolem`** (upstream), matching the V13 manifest. This checkout's git remote is `SpaceMoehre/Curse-Of-Strahd-by-ClayGolem`. If the v14 release is published from the fork, repoint those six URLs before tagging `2.0.0`.
+The `url`, `readme`, `bugs`, `changelog`, `manifest` and `download` fields originally pointed at **`ClayGolemDM/Curse-Of-Strahd-by-ClayGolem`** (upstream), matching the V13 manifest. The v14 port is released from the **`SpaceMoehre`** fork, so all six were repointed there — Foundry reads `manifest` and `download` at install and update time, and upstream will never publish a v14 build.
+
+The `authors` entry is deliberately unchanged: the module remains ClayGolem's work.
+
+## 9. Premium module references
+
+`relationships.recommends` listed `dnd-players-handbook`, `dnd-monster-manual`, `dnd-dungeon-masters-guide` and `JB2A_DnD5e`. Removed in 2.0.1 — Foundry renders recommendations alongside hard dependencies in the install dialog, so they look mandatory.
+
+They are not *required* — every actor, item and scene is fully embedded in the Adventure pack, and nothing is fetched from those modules to render the adventure. But the pack does reference them 1,782 times (`dnd-players-handbook` 957, `dnd-monster-manual` 758, `dnd-dungeon-masters-guide` 67), and not all of it is inert:
+
+| References | Field | Effect if the module is absent |
+|---|---|---|
+| 887 | `_stats.compendiumSource`, `flags.dnd5e.sourceId` | **None** — provenance only |
+| 466 | effect `origin` / `system.origin.*` | Console warnings; effects still apply their changes |
+| 177 | `activities.*.spell.uuid` | **Cast-spell activities cannot resolve the spell** |
+| 139 | `@UUID[…]` in descriptions and biographies | Broken links in statblock and journal prose |
+| 54 | `activities.*.profiles[].uuid` | Summon activities cannot resolve their creature |
+| 46 | `system.advancement[]` pools, grants and `value.added` | Class/subclass level-up grants fail |
+| 13 | `system.startingEquipment[].key` | Character creation only |
+
+So 1,353 of the 1,782 (76%) are provenance or effect bookkeeping and cost nothing. The ~277 that are load-bearing are cast-spell activities, summons and level-up grants — these degrade for NPCs whose statblocks link out to PHB spell entries rather than embedding them.
+
+`JB2A_DnD5e` had **zero** references and was pure noise.
+
+Counts produced by `tools/count-premium-refs.mjs`.
 
 ---
 

@@ -67,3 +67,22 @@ Two deliberate deviations from dnd5e's own behaviour:
 Everything the script does is idempotent. Migrations that depend on the Foundry v14 core
 globals `_del`, `_replace` or `isSpellOrScroll` are deliberately **not** attempted — see
 MIGRATION-V14.md §5.
+
+## count-premium-refs.mjs
+
+Read-only. Counts references from the pack into the premium WotC modules
+(`dnd-players-handbook`, `dnd-monster-manual`, `dnd-dungeon-masters-guide`) and
+`JB2A_DnD5e`, grouped by the field they live in.
+
+```bash
+node count-premium-refs.mjs path/to/Packs/Curse-of-Strahd
+```
+
+Written to decide whether `relationships.recommends` was load-bearing before removing it
+in 2.0.1. Answer: mostly not — 76% of the 1,782 references are `_stats.compendiumSource`
+provenance or effect-origin bookkeeping, which cost nothing when the module is absent.
+The remainder (cast-spell activities, summon profiles, advancement grants) do degrade.
+Full breakdown in MIGRATION-V14.md §9.
+
+Note that `classic-level` resolves relative to the script's own location, so run it from
+a directory where that package is installed rather than from the repo.

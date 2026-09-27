@@ -2,18 +2,28 @@
 
 The v14 build is a complete module: the migrated compendium pack plus all 650 art and
 audio files from release 1.2. It is **not** in this repository — the repo only tracks
-the manifest, docs and migration scripts. The build lives outside the working tree:
+the manifest, docs and migration scripts.
+
+**The easiest way to install is the published release.** Paste this into Foundry's
+*Install Module* dialog:
+
+```
+https://github.com/SpaceMoehre/Curse-Of-Strahd-by-ClayGolem/releases/latest/download/module.json
+```
+
+Everything below covers the manual paths — a local build, or a host that cannot reach
+GitHub. The build lives outside the working tree:
 
 ```
 /mnt/hdd/.cos-v14-work/build/curse-of-strahd-by-claygolem/   435 MB   drop-in folder
-/mnt/hdd/.cos-v14-work/curse-of-strahd-by-claygolem-v2.0.0.zip   433 MB   archive
+/mnt/hdd/.cos-v14-work/curse-of-strahd-by-claygolem.zip      433 MB   archive
 ```
 
 Contents:
 
 ```
 curse-of-strahd-by-claygolem/
-├── module.json                  v14 manifest (v2.0.0)
+├── module.json                  v14 manifest (v2.0.1)
 └── Packs/
     ├── Curse-of-Strahd/         migrated compendium  (3.5 MB LevelDB)
     ├── Scenes/   184 MB         ├── Actors/  110 MB
@@ -46,7 +56,7 @@ Then restart Foundry. Foundry only scans `modules/` at startup — a reload is n
 
 ### Hosted Foundry (The Forge, Molten, etc.)
 
-Upload `curse-of-strahd-by-claygolem-v2.0.0.zip` through your host's module-upload or
+Upload `curse-of-strahd-by-claygolem.zip` through your host's module-upload or
 "install from archive" flow. Foundry's own **Install Module** dialog only accepts a
 manifest URL, so a local zip cannot be installed through it — you either upload it to
 your host, or publish the zip as a GitHub release and point the dialog at
