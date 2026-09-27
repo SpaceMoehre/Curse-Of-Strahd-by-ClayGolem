@@ -269,6 +269,34 @@ map rather than a normalised match.
 
 Applied by `tools/remap-premium-assets.mjs`.
 
+## 11. Landing Page buttons made reversible (2.0.3)
+
+The `Landing Page` scene in `Core Resources & Intro` is a GM board of handout
+tiles plus Monk's Active Tiles buttons that reveal them. Every button latched:
+
+| action | was | now |
+|---|---|---|
+| `activate` | `"activate"` | `"toggle"` |
+| `showhide` | `"show"` | `"toggle"` |
+| `tileimage` | `select: "2"` | `select: "next"`, `loop: 1` |
+
+33 actions across 10 buttons. The Reset tile (`lp-reset`) is excluded and stays
+one-way. `permissions` actions are unchanged — MATT has no toggle for them, and
+Reset already revokes.
+
+Two pre-existing bugs in this scene were found and **not** fixed, since they are
+unrelated to the toggle behaviour:
+
+- The **Vallaki Map** and **Carnival Poster** buttons (tiles 21 and 23) have no
+  `showhide` action at all. They swap the target tile's image, but the target
+  stays `hidden: true`, so players never see it however often the button is
+  clicked. Tile 22 also ships with `fileindex: 1`, so its toggle now starts from
+  the revealed image rather than the blank card.
+- Tiles 16, 21 and 23 all carry the same Tagger tag `lp-argynvost-btn`, so Reset
+  treats three different buttons as one.
+
+Applied by `tools/toggle-landing-page-buttons.mjs`.
+
 ---
 
 ### Sources

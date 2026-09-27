@@ -119,3 +119,30 @@ death slaad, nothic, scarecrow, crawling claw); substituting a different monster
 would be worse than a missing one, so they are reported and skipped.
 
 Same `classic-level` working-directory caveat as above.
+
+## toggle-landing-page-buttons.mjs
+
+Makes the **Landing Page** handout buttons toggle instead of latching.
+
+```bash
+node toggle-landing-page-buttons.mjs path/to/Packs/Curse-of-Strahd [--apply]
+```
+
+The Landing Page scene (in `Core Resources & Intro`) is a GM-facing board: ten
+handout tiles, all `hidden`, and a row of Monk's Active Tiles buttons that reveal
+them to players. Each button ran three one-way actions —
+`activate: "activate"`, `showhide: "show"` and `tileimage: select "2"` — so a
+second click re-ran the same three and nothing ever turned back off. The only way
+back was the separate Reset button.
+
+The script rewrites those to `"toggle"`, `"toggle"` and `"next"` (with `loop: 1`).
+All three values already appear elsewhere in this pack, written by the original
+author, so no new MATT vocabulary is introduced.
+
+Applied to 2.0.3: **33 actions across 10 buttons**. Buttons are found by their
+`lp-…-btn` Tagger tag, which excludes the Reset tile (`lp-reset`) — that one has
+to stay one-way.
+
+`permissions` actions are left alone on purpose. MATT has no toggle for
+permission, and revoking a handout the party has already read is worse than
+leaving it readable; Reset still revokes all of them.
