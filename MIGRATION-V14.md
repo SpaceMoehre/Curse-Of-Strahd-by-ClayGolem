@@ -233,6 +233,42 @@ So 1,353 of the 1,782 (76%) are provenance or effect bookkeeping and cost nothin
 
 Counts produced by `tools/count-premium-refs.mjs`.
 
+## 10. Premium asset paths repointed at dnd5e (2.0.2)
+
+§9 counted `Compendium.*` **document** references. It did not count asset **file
+paths**, and those were the visible breakage: scenes referenced
+`modules/dnd-monster-manual/assets/tokens/*.webp` directly, so without that module
+installed every such token rendered as the default white square. On release 2.0.1,
+**541 of the 1,258 scene tokens (43%) across 61 scenes** were blank.
+
+dnd5e 6.0 ships 479 creature tokens under `tokens/`, which covers most of them.
+Item and armor art has no dnd5e equivalent — dnd5e's `icons/` tree is 187 SVGs —
+but dnd5e's own compendium items point at **core Foundry** icons, so that mapping
+was read out of `packs/_source` rather than invented.
+
+| | 2.0.1 | 2.0.2 |
+|---|---|---|
+| distinct premium asset paths | 161 | 11 |
+| scene tokens on premium art | 541 | 36 |
+| scenes with blank tokens | 61 | 8 |
+
+150 paths remapped, rewriting 756 references across 20 documents — 102 to
+`systems/dnd5e/tokens/…`, 48 to core `icons/…`.
+
+The 11 remaining are six creatures dnd5e does not ship: barlgura, blue slaad,
+death slaad, nothic, scarecrow, crawling claw. These were left pointing at the
+premium module deliberately. Substituting a different monster's token would be a
+silent lie about what is on the map, which is worse than a missing image the GM
+can see and replace.
+
+Still outstanding, and unrelated to the premium modules: **566 references to
+`cg-curse-of-strahd`**, the module's own former ID. That art is in the package
+already, rehomed under `Packs/Tiles/` with different names
+(`attic-carpet-(4x4).webp` → `AtticRug.webp`), so it needs a hand-checked name
+map rather than a normalised match.
+
+Applied by `tools/remap-premium-assets.mjs`.
+
 ---
 
 ### Sources

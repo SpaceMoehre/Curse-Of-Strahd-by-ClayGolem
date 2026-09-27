@@ -86,3 +86,36 @@ Full breakdown in MIGRATION-V14.md §9.
 
 Note that `classic-level` resolves relative to the script's own location, so run it from
 a directory where that package is installed rather than from the repo.
+
+## remap-premium-assets.mjs
+
+Repoints asset paths that live in the premium WotC modules at art that ships with
+dnd5e or with Foundry core, so scenes render without those modules installed.
+
+```bash
+node remap-premium-assets.mjs path/to/Packs/Curse-of-Strahd path/to/dnd5e-checkout [--apply]
+```
+
+The dnd5e checkout needs `tokens/` and `packs/_source/` (a sparse checkout of
+release-6.0.5 is enough). Without `--apply` it only reports and writes
+`remap-plan.tsv`.
+
+Creature art is matched against dnd5e's 479 bundled tokens on the normalised
+filename — extension dropped, a trailing `-NN` or `-*` dropped, folded to
+`[a-z0-9]`, so `wolf-01.webp` finds `tokens/beast/Wolf.webp`. An `ALIAS` table
+covers names dnd5e spells differently (`adult-black-dragon` → `BlackDragonAdult`,
+`swarm-of-venomous-snakes` → `SwarmPoisonousSnakes`).
+
+Item, armor, class and species art has no dnd5e equivalent — dnd5e's own `icons/`
+tree is 187 SVGs, not item art. Instead the script reads `name:`/`img:` out of
+dnd5e's `packs/_source` YAML and reuses the **core Foundry** icon each item
+already points at, so every target is a path dnd5e itself ships content against
+rather than one invented here.
+
+Applied to 2.0.2: **150 of 161** distinct premium paths remapped, rewriting 756
+references across 20 documents. Broken scene tokens went from 541 to 36. The 11
+left alone are six creatures dnd5e does not ship at all (barlgura, blue slaad,
+death slaad, nothic, scarecrow, crawling claw); substituting a different monster
+would be worse than a missing one, so they are reported and skipped.
+
+Same `classic-level` working-directory caveat as above.

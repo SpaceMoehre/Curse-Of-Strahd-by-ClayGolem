@@ -2,7 +2,7 @@
   "id": "curse-of-strahd-by-claygolem",
   "title": "Curse of Strahd by ClayGolem",
   "description": "<p>A complete, ready-to-run Foundry VTT Adventure pack for <strong>Curse of Strahd</strong>, following <a href=\"https://www.strahdreloaded.com/Introduction/A+DM's+Guide+to+Curse+of+Strahd\">DragnaCarta's <em>Curse of Strahd: Reloaded</em></a> and updated for the 2024 D&amp;D rules.</p><p>Includes every pre-built map with walls, lighting, ambient sound and Monk's Active Tile triggers already configured, plus all Actors and Items used by the adventure.</p><p>You will need your own copy of the original <em>Curse of Strahd</em> from WotC or D&amp;D Beyond, and the free <em>Curse of Strahd: Reloaded</em> guide.</p>",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "compatibility": {
     "minimum": "14",
     "verified": "14.368"
@@ -93,5 +93,5 @@
   "bugs": "https://github.com/SpaceMoehre/Curse-Of-Strahd-by-ClayGolem/issues",
   "changelog": "https://github.com/SpaceMoehre/Curse-Of-Strahd-by-ClayGolem/releases",
   "manifest": "https://github.com/SpaceMoehre/Curse-Of-Strahd-by-ClayGolem/releases/latest/download/module.json",
-  "download": "https://github.com/SpaceMoehre/Curse-Of-Strahd-by-ClayGolem/releases/download/2.0.1/curse-of-strahd-by-claygolem.zip"
+  "download": "https://github.com/SpaceMoehre/Curse-Of-Strahd-by-ClayGolem/releases/download/2.0.2/curse-of-strahd-by-claygolem.zip"
 }

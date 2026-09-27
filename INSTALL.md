@@ -23,7 +23,7 @@ Contents:
 
 ```
 curse-of-strahd-by-claygolem/
-├── module.json                  v14 manifest (v2.0.1)
+├── module.json                  v14 manifest (v2.0.2)
 └── Packs/
     ├── Curse-of-Strahd/         migrated compendium  (3.5 MB LevelDB)
     ├── Scenes/   184 MB         ├── Actors/  110 MB
