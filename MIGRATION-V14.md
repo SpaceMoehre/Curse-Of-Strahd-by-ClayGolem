@@ -109,9 +109,9 @@ no longer exists — which is exactly the gap the script closes.
 
 What could not be done offline, and needs Foundry v14 running with your licence:
 
-1. **The dnd5e system migration.** Pack content is stamped dnd5e 4.3.6–5.1.10. Reaching
-   6.0.x is a two-major-version jump (4.x → 5.x → 6.x) covering the 2024 rules
-   restructure. This is the largest remaining risk and needs a real import to validate.
+1. **The remainder of the dnd5e 6.0 migration** — the rows marked "left" in §5. These
+   run automatically on import (shims) or via `dnd5e.migrations.migrateWorld()`; see
+   `INSTALL.md`.
 2. **Visual verification** of 206 scenes — walls, lighting, Monk's Active Tile triggers,
    Item Piles.
 3. **Adventure Builder → Rebuild**, to write the migrated world state back over the
@@ -124,7 +124,68 @@ required modules at their v14 versions; import the adventure; verify; rebuild; e
 > **Note:** Foundry v14 requires **Node.js 24**. This machine has Node 22.14.0 — fine for
 > the LevelDB work above, not enough to run a v14 server.
 
-## 5. Dependency status (verified September 2026)
+## 5. dnd5e 6.0 content migration
+
+Pack content is stamped dnd5e 4.3.6–5.1.10, but the version spread overstates the gap.
+An audit of all 1,900 items found **1,821 already carrying `system.activities` and zero
+legacy `system.damage.parts`** — the content already sits on the post-4.0 Activities
+schema. `character.bastion` (dnd5e 4.1+) is present too.
+
+### Where dnd5e 6.0's migrations actually live
+
+| Mechanism | Runs when | Covers |
+|---|---|---|
+| `DataModel._migrateData` shims | Every document instantiation, including adventure import | AC `calc`/`formula` → `calcs`/`formulas`; `flags.dnd5e.riders.statuses` → `system.rider.statuses`; change `_id` defaults |
+| `dnd5e.migrations.migrateWorld()` | System version bump, or called manually | Everything below, on world documents |
+| `dnd5e.migrations.migrateCompendium()` | Manually, per pack | **Nothing here** — see below |
+
+That last row is the gap. `module/migration.mjs` line 256 (release-6.0.5):
+
+```js
+if ( !["Actor", "Item", "Scene"].includes(documentName) ) return;
+```
+
+This is an **Adventure** pack, so dnd5e's own compendium migration tool skips it
+entirely. That is why the offline pass below exists.
+
+### The complete set of 6.0-era migrations
+
+Every version gate in `migration.mjs` was enumerated — exactly three `6.0.0` gates and
+two `5.3.0` gates exist. Measured against this pack:
+
+| Migration | Hits | Status |
+|---|---|---|
+| Effect `origin` → `system.origin.{item,activity}` | 496 | **applied offline** |
+| NPC-owned item gains `"gear"` property | 264 | **applied offline** |
+| `flags.dnd5e.riders.statuses` → `system.rider.statuses` | 89 | **applied offline** (bakes in the shim) |
+| NPC-owned item `equipped: false` → `true` | 45 | **applied offline** |
+| Actor `prototypeToken.flags.dnd5e.lockScale` | 2 | **applied offline** |
+| Effect change `_id` assignment | 795 | left — field has `initial: () => randomID()` |
+| `changes` → `system.changes`, numeric `mode` → string `type` | 585 / 814 | left — **core v14** owns this shape, not dnd5e |
+| Effect `system.magical` | 365 | left — needs core global `isSpellOrScroll()` |
+| Spell `system.sourceItem` backfill | 141 | left — needs `formatIdentifier()` slug semantics |
+| Enchantment `transfer` recalculation | 151 | left — already correct in this data |
+| `system.advancement` `_replace()` | 921 | no-op — changes merge semantics, not content |
+| `system.source.rules = "2014"` | 0 | gated `< 4.0.0`; content is 4.3.6+ |
+| Movement/senses `0` → `null` | 0 | gated `< 2.4.0` |
+| Token PNG → WEBP; `initiativeAdv`; `migratedProperties`; `migratedUses` | 0 | absent from this pack |
+
+Applied by `tools/migrate-dnd5e-6.mjs`; counts verified against the rebuilt pack.
+
+### Why the "left" rows were left
+
+dnd5e 6.0.5's migration code calls three **Foundry v14 core globals** that are neither
+importable nor documented: `_del`, `_replace` and `isSpellOrScroll`. Reproducing them
+offline means guessing at core internals, and a wrong guess is *sticky* — `system.sourceItem`,
+for instance, is guarded by `!itemData.system?.sourceItem`, so a bad value would
+permanently block dnd5e from ever correcting it. Everything left alone is either
+auto-shimmed on load or safely re-runnable inside Foundry.
+
+`_stats.systemVersion` was **deliberately not bumped**, so dnd5e still sees the content
+as pre-6.0 and its own migration will still fire. All five applied migrations are
+idempotent, so running dnd5e's migration afterwards is safe.
+
+## 6. Dependency status (verified September 2026)
 
 | Module | Latest | Foundry compatibility |
 |---|---|---|
@@ -137,12 +198,12 @@ required modules at their v14 versions; import the adventure; verify; rebuild; e
 
 All five required modules have v14-verified releases, so nothing in `relationships.requires` blocks the port.
 
-## 6. Not applicable to this module
+## 7. Not applicable to this module
 
 This module ships no JavaScript — no `esmodules`, `scripts` or `styles`. The v14 API breaks that hit most modules therefore do not apply here:
 ApplicationV2 `_insertElement` signature changes, detached/pop-out windows, `foundry.prosemirror.defaultPlugins` → `ProseMirrorEditor.buildDefaultPlugins()`, `CONST.CHAT_MESSAGE_TYPES` → `CHAT_MESSAGE_STYLES`, the `getPlaceableContextOptions` hook, and the AppV1 (`Application`/`Dialog`/`FormApplication`) deprecations scheduled for removal in v16.
 
-## 7. Open decision
+## 8. Open decision
 
 The `url`, `readme`, `bugs`, `changelog`, `manifest` and `download` fields point at **`ClayGolemDM/Curse-Of-Strahd-by-ClayGolem`** (upstream), matching the V13 manifest. This checkout's git remote is `SpaceMoehre/Curse-Of-Strahd-by-ClayGolem`. If the v14 release is published from the fork, repoint those six URLs before tagging `2.0.0`.
 

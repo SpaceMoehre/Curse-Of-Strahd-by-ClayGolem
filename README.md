@@ -59,6 +59,9 @@ Because the adventure needs GM setup after importing, `postImport` is enabled: p
 
 Foundry v14 worlds are **one-way** — a world opened in v14 cannot be opened in v13 again, and v14 cannot be installed in place over v13. Back up your user data and use a separate v14 installation before migrating an in-progress campaign.
 
+See [INSTALL.md](INSTALL.md) for how to install this build and finish the dnd5e
+migration in Foundry.
+
 See [MIGRATION-V14.md](MIGRATION-V14.md) for the full port notes, including an audit of the
 release 1.2 compendium pack and what still needs doing in a live v14 instance.
 
